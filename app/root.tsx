@@ -9,7 +9,10 @@ import {
   Scripts,
   ScrollRestoration,
   useCatch,
+  useTransition,
 } from "remix";
+import NProgress from "nprogress";
+import nProgressStyles from "nprogress/nprogress.css";
 
 import stylesUrl from "./styles/tailwind.css";
 
@@ -22,7 +25,10 @@ import stylesUrl from "./styles/tailwind.css";
  * https://remix.run/api/app#links
  */
 export let links: LinksFunction = () => {
-  return [{ rel: "stylesheet", href: stylesUrl }];
+  return [
+    { rel: "stylesheet", href: stylesUrl },
+    { rel: "stylesheet", href: nProgressStyles },
+  ];
 };
 
 export let meta: MetaFunction = () => {
@@ -38,6 +44,12 @@ export let loader: LoaderFunction = async () => {
 };
 
 export default function App() {
+  let transition = useTransition();
+  React.useEffect(() => {
+    if (transition.state === "idle") NProgress.done();
+    else NProgress.start();
+  }, [transition.state]);
+
   return (
     <Document>
       <Layout>
