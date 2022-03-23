@@ -12,22 +12,14 @@ import {
   useTransition,
 } from "remix";
 import NProgress from "nprogress";
-import nProgressStyles from "nprogress/nprogress.css";
+import nProgressStylesUrl from "nprogress/nprogress.css";
 
 import stylesUrl from "./styles/tailwind.css";
 
-/**
- * The `links` export is a function that returns an array of objects that map to
- * the attributes for an HTML `<link>` element. These will load `<link>` tags on
- * every route in the app, but individual routes can include their own links
- * that are automatically unloaded when a user navigates away from the route.
- *
- * https://remix.run/api/app#links
- */
 export let links: LinksFunction = () => {
   return [
     { rel: "stylesheet", href: stylesUrl },
-    { rel: "stylesheet", href: nProgressStyles },
+    { rel: "stylesheet", href: nProgressStylesUrl },
   ];
 };
 

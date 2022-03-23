@@ -1,10 +1,18 @@
-import { json, Form, useLoaderData } from "remix";
+import { LinksFunction, useActionData } from "remix";
+import { json, Form, useLoaderData, useLocation } from "remix";
+import { ToastContainer, toast } from "react-toastify";
+import reactToastifyStylesUrl from "react-toastify/dist/ReactToastify.css";
 
 import { ActionFunction, LoaderFunction } from "~/context.server";
 import { verifyLogin } from "~/session.server";
 
 import { DefaultButton } from "~/components/buttons";
-import { Input, Label } from "~/components/forms";
+import { Input, InputError, Label } from "~/components/forms";
+import { useEffect } from "react";
+
+export let links: LinksFunction = () => {
+  return [{ rel: "stylesheet", href: reactToastifyStylesUrl }];
+};
 
 interface LoaderData {
   displayName: string;
@@ -38,6 +46,7 @@ interface ActionData {
   errors?: {
     displayName?: string;
   };
+  success?: true;
 }
 
 export let action: ActionFunction = async ({
@@ -70,28 +79,42 @@ export let action: ActionFunction = async ({
 
   await Promise.all([USERS.put(`user:${userId}:displayName`, displayName)]);
 
-  return json({});
+  return json({ success: true });
 };
 
 export default function Dashboard() {
   let { displayName } = useLoaderData<LoaderData>();
+  let actionData = useActionData<ActionData>();
+  let { errors } = actionData || {};
+
+  useEffect(() => {
+    if (actionData?.success) {
+      toast.success("Updated successfully", { autoClose: 1000 });
+    }
+  }, [actionData]);
 
   return (
-    <div className="sm:px-10 p-5">
-      <h1 className="mt-6 text-xl">Dashboard</h1>
+    <>
+      <div className="sm:px-10 p-5">
+        <h1 className="mt-6 text-xl">Dashboard</h1>
 
-      <Form method="post">
-        <Label>
-          Display name
-          <Input
-            required
-            key={displayName}
-            name="displayName"
-            defaultValue={displayName}
-          />
-        </Label>
-        <DefaultButton>Update</DefaultButton>
-      </Form>
-    </div>
+        <Form method="post">
+          <Label>
+            Display name
+            <Input
+              required
+              key={displayName}
+              name="displayName"
+              defaultValue={displayName}
+            />
+            {!!errors?.displayName && (
+              <InputError>{errors.displayName}</InputError>
+            )}
+          </Label>
+          <DefaultButton>Update</DefaultButton>
+        </Form>
+      </div>
+      <ToastContainer />
+    </>
   );
 }
