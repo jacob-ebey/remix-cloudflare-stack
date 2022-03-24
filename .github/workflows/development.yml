@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Install Playwright
-        run: npx playwright install --with-deps
+        uses: microsoft/playwright-github-action@v1
       - name: Build the worker
         run: npm run build
       - name: Run some tests
