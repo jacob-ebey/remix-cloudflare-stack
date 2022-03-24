@@ -7,6 +7,7 @@ export interface CloudflareEnvironment {
 }
 
 export interface Context {
+  ctx: ExecutionContext;
   env: CloudflareEnvironment;
   sessionStorage: SessionStorage;
 }

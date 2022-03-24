@@ -1,12 +1,8 @@
 import { createCookieSessionStorage } from "remix";
 
-import {
-  createFetchHandler,
-  createWorkerAssetHandler,
-  // createPageAssetHandler,
-} from "./adapter";
+import { createFetchHandler, createWorkerAssetHandler } from "./adapter";
 
-import type { CloudflareEnvironment } from "../app/context.server";
+import type { CloudflareEnvironment, Context } from "../app/context.server";
 
 import * as build from "../build/index.js";
 
@@ -23,7 +19,7 @@ const handleFetch = createFetchHandler<CloudflareEnvironment>({
    * @param ctx Exectuion context, i.e. ctx.waitUntil() or ctx.passThroughOnException();
    * @returns Context
    */
-  getLoadContext(request, env, ctx) {
+  getLoadContext(request, env, ctx): Context {
     let sessionStorage = createCookieSessionStorage({
       cookie: {
         isSigned: true,
