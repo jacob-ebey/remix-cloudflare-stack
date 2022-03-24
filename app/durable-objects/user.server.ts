@@ -63,112 +63,107 @@ export class UserDurableObject {
     let url = new URL(request.url);
     let method = request.method.toLowerCase();
 
-    if ((this.state.id as DurableObjectId)?.name === "global") {
-      if (url.pathname === "/login" && method === "post") {
-        let parsed = await tryParseFormData(
-          await request.formData(),
-          loginSchema
-        );
+    if (url.pathname === "/login" && method === "post") {
+      let parsed = await tryParseFormData(
+        await request.formData(),
+        loginSchema
+      );
 
-        if ("errors" in parsed) {
-          return json(parsed, { status: 400 });
-        }
+      if ("errors" in parsed) {
+        return json(parsed, { status: 400 });
+      }
 
-        let userId = await this.state.storage.get<string>(parsed.data.email);
-        if (!userId) {
-          return json(
-            {
-              errors: {
-                email: "Could not login",
-              },
+      let userId = await this.state.storage.get<string>(parsed.data.email);
+      if (!userId) {
+        return json(
+          {
+            errors: {
+              email: "Could not login",
             },
-            { status: 400 }
-          );
-        }
-
-        let user = await this.state.storage.get<UserWithPassword>(userId);
-        if (
-          !user ||
-          !(await compare(parsed.data.password, user.passwordHash))
-        ) {
-          return json<LoginResult>(
-            {
-              errors: {
-                email: "Could not login",
-              },
-            },
-            { status: 400 }
-          );
-        }
-        user.id = userId;
-
-        return json<LoginResult>({
-          data: {
-            id: userId,
-            email: user.email,
           },
-        });
+          { status: 400 }
+        );
       }
 
-      if (url.pathname === "/signup" && method === "post") {
-        let parsed = await tryParseFormData(
-          await request.formData(),
-          signupSchema
-        );
-        if ("errors" in parsed) {
-          return json(parsed, { status: 400 });
-        }
-
-        if (await this.state.storage.get(parsed.data.email)) {
-          return json(
-            {
-              errors: {
-                email: "Could not signup",
-              },
+      let user = await this.state.storage.get<UserWithPassword>(userId);
+      if (!user || !(await compare(parsed.data.password, user.passwordHash))) {
+        return json<LoginResult>(
+          {
+            errors: {
+              email: "Could not login",
             },
-            { status: 400 }
-          );
-        }
-
-        let userId = uuidV4();
-        await Promise.all([
-          this.state.storage.put(userId, parsed.data),
-          this.state.storage.put(parsed.data.email, userId),
-        ]);
-
-        let id = this.env.USER.idFromName(userId);
-        let obj = this.env.USER.get(id);
-        let formData = new FormData();
-        formData.set("displayName", parsed.data.email);
-        await obj.fetch("/profile", { method: "post", body: formData });
-
-        return json<SignupResult>({
-          data: {
-            id: userId,
-            email: parsed.data.email,
           },
-        });
-      }
-    } else {
-      if (url.pathname === "/profile" && method === "get") {
-        return json(await this.state.storage.get("profile"));
-      }
-
-      if (url.pathname === "/profile" && method === "post") {
-        let parsed = await tryParseFormData(
-          await request.formData(),
-          profileSchema
+          { status: 400 }
         );
-        if ("errors" in parsed) {
-          return json(parsed, { status: 400 });
-        }
-
-        await this.state.storage.put("profile", parsed.data);
-
-        return json({
-          data: parsed.data,
-        });
       }
+      user.id = userId;
+
+      return json<LoginResult>({
+        data: {
+          id: userId,
+          email: user.email,
+        },
+      });
+    }
+
+    if (url.pathname === "/signup" && method === "post") {
+      let parsed = await tryParseFormData(
+        await request.formData(),
+        signupSchema
+      );
+      if ("errors" in parsed) {
+        return json(parsed, { status: 400 });
+      }
+
+      if (await this.state.storage.get(parsed.data.email)) {
+        return json(
+          {
+            errors: {
+              email: "Could not signup",
+            },
+          },
+          { status: 400 }
+        );
+      }
+
+      let userId = uuidV4();
+      await Promise.all([
+        this.state.storage.put(userId, parsed.data),
+        this.state.storage.put(parsed.data.email, userId),
+      ]);
+
+      let id = this.env.USER.idFromName(userId);
+      let obj = this.env.USER.get(id);
+      let formData = new FormData();
+      formData.set("displayName", parsed.data.email);
+      await obj.fetch("/profile", { method: "post", body: formData });
+
+      return json<SignupResult>({
+        data: {
+          id: userId,
+          email: parsed.data.email,
+        },
+      });
+    }
+
+    if (url.pathname === "/profile" && method === "get") {
+      return json(await this.state.storage.get("profile"));
+    }
+
+    if (url.pathname === "/profile" && method === "post") {
+      let parsed = await tryParseFormData(
+        await request.formData(),
+        profileSchema
+      );
+      if ("errors" in parsed) {
+        return json(parsed, { status: 400 });
+      }
+
+      await this.state.storage.put("profile", parsed.data);
+
+      return json({
+        data: parsed.data,
+      });
     }
 
     return json({ errors: { global: "not found" } }, { status: 404 });
