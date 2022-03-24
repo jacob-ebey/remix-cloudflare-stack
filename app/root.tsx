@@ -1,6 +1,7 @@
-import type { LinksFunction, MetaFunction, LoaderFunction } from "remix";
 import * as React from "react";
+import type { LinksFunction, MetaFunction } from "remix";
 import {
+  json,
   Link,
   Links,
   LiveReload,
@@ -9,10 +10,13 @@ import {
   Scripts,
   ScrollRestoration,
   useCatch,
+  useMatches,
   useTransition,
 } from "remix";
 import NProgress from "nprogress";
 import nProgressStylesUrl from "nprogress/nprogress.css";
+
+import type { LoaderFunction } from "~/context.server";
 
 import stylesUrl from "./styles/tailwind.css";
 
@@ -31,8 +35,12 @@ export let meta: MetaFunction = () => {
   };
 };
 
+interface LoaderData {
+  version: string;
+}
+
 export let loader: LoaderFunction = async () => {
-  return { date: new Date() };
+  return json<LoaderData>({ version: process.env.VERSION });
 };
 
 export default function App() {
@@ -77,6 +85,8 @@ function Document({
 }
 
 function Layout({ children }: React.PropsWithChildren<{}>) {
+  let version = useMatches().find((m) => m.id === "root")?.data?.version;
+
   return (
     <div className="min-h-screen flex flex-col">
       <header className="sticky top-0 bg-white sm:px-10 p-5 border-b">
@@ -85,17 +95,7 @@ function Layout({ children }: React.PropsWithChildren<{}>) {
         </Link>
       </header>
       <main className="flex-grow">{children}</main>
-      <footer className="sm:px-10 p-5">
-        Wanna know more about Remix? Check out{" "}
-        <a
-          className="underline"
-          href="https://remix.guide"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Remix Guide
-        </a>
-      </footer>
+      <footer className="sm:px-10 p-5">Version {version}</footer>
     </div>
   );
 }
