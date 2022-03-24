@@ -13,7 +13,7 @@ bindings = [
 ]
 
 [[migrations]]
-new_classes = ["noteDurableObject", "UserDurableObject"]
+new_classes = ["NoteDurableObject", "UserDurableObject"]
 tag = "v1"
 
 [site]
