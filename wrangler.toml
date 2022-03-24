@@ -14,7 +14,7 @@ bindings = [
 
 [[migrations]]
 new_classes = ["NoteDurableObject", "UserDurableObject"]
-tag = "v1"
+tag = "v2"
 
 [site]
 bucket = "./public"
