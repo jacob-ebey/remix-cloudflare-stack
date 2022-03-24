@@ -127,7 +127,11 @@ export default function Signup() {
           Remember Me
         </CheckboxLabel>
 
-        <DefaultButton className="block" type="submit" data-testid="signup">
+        <DefaultButton
+          className="block mt-2"
+          type="submit"
+          data-testid="signup"
+        >
           Signup
         </DefaultButton>
       </Form>

@@ -107,7 +107,7 @@ export default function Login() {
           Remember Me
         </CheckboxLabel>
 
-        <DefaultButton className="block" type="submit" data-testid="login">
+        <DefaultButton className="block mt-2" type="submit" data-testid="login">
           Login
         </DefaultButton>
       </Form>
