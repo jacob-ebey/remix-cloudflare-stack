@@ -1,5 +1,6 @@
 name = "remix-cloudflare-stack"
 type = "javascript"
+usage_model = "unbound"
 workers_dev = true
 # account_id = "Or specified with process.env.CF_ACCOUNT_ID"
 # zone_id = "Or specified with process.env.CF_ZONE_ID"
@@ -12,11 +13,8 @@ bindings = [
 ]
 
 [[migrations]]
-new_classes = ["UserDurableObject"]
+new_classes = ["noteDurableObject", "UserDurableObject"]
 tag = "v1"
-[[migrations]]
-new_classes = ["NoteDurableObject"]
-tag = "v2"
 
 [site]
 bucket = "./public"
