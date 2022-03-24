@@ -14,6 +14,10 @@ bindings = [
   {name = "USER", class_name = "UserDurableObject"},
 ]
 
+[[migrations]]
+new_classes = ["UserDurableObject"]
+tag = "v1"
+
 [site]
 bucket = "./public"
 entry-point = "."
