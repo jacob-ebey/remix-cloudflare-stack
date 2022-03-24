@@ -1,4 +1,4 @@
-name = "remix-cloudflare-stack"
+name = "remix-cloudflare-do"
 type = "javascript"
 usage_model = "unbound"
 workers_dev = true
@@ -12,9 +12,9 @@ bindings = [
   {name = "NOTE", class_name = "NoteDurableObject"},
 ]
 
-[[migrations]]
-new_classes = ["NoteDurableObject", "UserDurableObject"]
-tag = "v2"
+# [[migrations]]
+# new_classes = ["NoteDurableObject", "UserDurableObject"]
+# tag = "v1"
 
 [site]
 bucket = "./public"
