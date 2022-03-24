@@ -101,7 +101,11 @@ export default function ProfileRoute() {
               <InputError>{errors.displayName}</InputError>
             )}
           </Label>
-          <DefaultButton type="submit" data-testid="updateProfile">
+          <DefaultButton
+            className="block mt-2"
+            type="submit"
+            data-testid="updateProfile"
+          >
             Update
           </DefaultButton>
         </Form>
