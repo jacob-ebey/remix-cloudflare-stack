@@ -27,7 +27,7 @@ interface ActionData {
 export let action: ActionFunction = async ({
   request,
   context: {
-    env: { USERS },
+    env: { USER },
     sessionStorage,
   },
 }) => {
@@ -35,39 +35,18 @@ export let action: ActionFunction = async ({
     failure: "/login",
   });
 
-  let formData = new URLSearchParams(await request.text());
-  let title = formData.get("title")?.trim();
-  let body = formData.get("body")?.trim();
+  let id = USER.idFromName(userId);
+  let obj = USER.get(id);
 
-  let actionData: ActionData = {};
-  if (!title) {
-    actionData.errors = {
-      title: "Title is required",
-    };
-  }
-  if (!body) {
-    actionData.errors = {
-      ...actionData.errors,
-      body: "Body is required",
-    };
-  }
+  let createNoteResponse = await obj.fetch("/notes", {
+    method: "post",
+    body: request.body,
+  });
+  let actionData = await createNoteResponse.json<ActionData>();
 
   if (actionData.errors) {
     return json(actionData);
   }
-
-  title = title!;
-  body = body!;
-  let id = uuidV4();
-
-  await USERS.put(
-    `user:${userId}:note:${id}`,
-    JSON.stringify({
-      id,
-      title,
-      body,
-    })
-  );
 
   return redirect(`/notes`);
 };

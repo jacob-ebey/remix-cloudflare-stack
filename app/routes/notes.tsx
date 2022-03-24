@@ -18,7 +18,7 @@ interface LoaderData {
 export let loader: LoaderFunction = async ({
   request,
   context: {
-    env: { USERS },
+    env: { USER },
     sessionStorage,
   },
 }) => {
@@ -26,15 +26,11 @@ export let loader: LoaderFunction = async ({
     failure: "/login",
   });
 
-  let list = await USERS.list({ prefix: `user:${userId}:note:` });
-  let notes = (
-    await Promise.all(list.keys.map((key) => USERS.get(key.name)))
-  ).reduce<Note[]>((p, c) => {
-    if (typeof c === "string") {
-      p.push(JSON.parse(c));
-    }
-    return p;
-  }, []);
+  let id = USER.idFromName(userId);
+  let obj = USER.get(id);
+  let notesResponse = await obj.fetch("/notes");
+  let notes = await notesResponse.json<Note[]>();
+  console.log({ notes });
 
   return json<LoaderData>({ notes });
 };
@@ -42,7 +38,7 @@ export let loader: LoaderFunction = async ({
 export let action: ActionFunction = async ({
   request,
   context: {
-    env: { USERS },
+    env: { USER },
     sessionStorage,
   },
 }) => {
@@ -54,7 +50,9 @@ export let action: ActionFunction = async ({
   let toDelete = formData.get("toDelete");
 
   if (toDelete) {
-    await USERS.delete(`user:${userId}:note:${toDelete}`);
+    let id = USER.idFromName(userId);
+    let obj = USER.get(id);
+    await obj.fetch(`/notes/${toDelete}`, { method: "delete" });
   }
 
   return json({});
@@ -98,7 +96,9 @@ export default function Notes() {
       </h1>
 
       {notes.length === 0 ? (
-        <p className="py-2">Get started by creating a new note.</p>
+        <p className="py-2" data-testid="noNotes">
+          Get started by creating a new note.
+        </p>
       ) : (
         <ul>
           {notes.map((note) => (

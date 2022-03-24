@@ -9,6 +9,11 @@ kv_namespaces = [
   {binding = "USERS", id = "0fa51d314fe643d9a7035436b4ad5b72"},
 ]
 
+[durable_objects]
+bindings = [
+  {name = "USER", class_name = "UserDurableObject"},
+]
+
 [site]
 bucket = "./public"
 entry-point = "."

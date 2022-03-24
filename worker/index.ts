@@ -6,6 +6,8 @@ import type { CloudflareEnvironment, Context } from "../app/context.server";
 
 import * as build from "../build/index.js";
 
+export { UserDurableObject } from "./durable-objects/user";
+
 const handleFetch = createFetchHandler<CloudflareEnvironment>({
   /**
    * Required: Remix build files
