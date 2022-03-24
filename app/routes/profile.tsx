@@ -73,7 +73,7 @@ export let action: ActionFunction = async ({
   return json({ success: true });
 };
 
-export default function Profile() {
+export default function ProfileRoute() {
   let { displayName } = useLoaderData<LoaderData>();
   let actionData = useActionData<ActionData>();
   let { errors } = actionData || {};
