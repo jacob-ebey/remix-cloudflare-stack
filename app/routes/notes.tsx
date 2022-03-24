@@ -30,7 +30,6 @@ export let loader: LoaderFunction = async ({
   let obj = USER.get(id);
   let notesResponse = await obj.fetch("/notes");
   let notes = await notesResponse.json<Note[]>();
-  console.log({ notes });
 
   return json<LoaderData>({ notes });
 };
