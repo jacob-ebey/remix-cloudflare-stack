@@ -40,8 +40,8 @@ export default function Index() {
 
       {displayName ? (
         <>
-          <DefaultButton tag={Link} to="/dashboard">
-            Dashboard
+          <DefaultButton tag={Link} to="/profile">
+            Profile
           </DefaultButton>
 
           <Form className="inline-block ml-2" action="/logout" method="post">

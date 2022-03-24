@@ -4,7 +4,7 @@ import { signup } from "./utils";
 test("can change display name", async ({ page, queries }) => {
   const { email } = await signup(page);
   expect(await queries.findByText(email, { exact: false })).toBeTruthy();
-  await page.goto("/dashboard");
+  await page.goto("/profile");
 
   let newDisplayName = "new display name";
 

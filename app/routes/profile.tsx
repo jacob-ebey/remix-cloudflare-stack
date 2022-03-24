@@ -82,7 +82,7 @@ export let action: ActionFunction = async ({
   return json({ success: true });
 };
 
-export default function Dashboard() {
+export default function Profile() {
   let { displayName } = useLoaderData<LoaderData>();
   let actionData = useActionData<ActionData>();
   let { errors } = actionData || {};
@@ -96,7 +96,7 @@ export default function Dashboard() {
   return (
     <>
       <div className="sm:px-10 p-5">
-        <h1 className="mt-6 text-xl">Dashboard</h1>
+        <h1 className="mt-6 text-xl">Profile</h1>
 
         <Form method="post">
           <Label>
