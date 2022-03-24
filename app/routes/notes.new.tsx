@@ -82,7 +82,11 @@ export default function NewNote() {
           {!!errors?.body && <InputError>{errors.body}</InputError>}
         </Label>
 
-        <DefaultButton className="block" type="submit" data-testid="createNote">
+        <DefaultButton
+          className="block mt-2"
+          type="submit"
+          data-testid="createNote"
+        >
           Create
         </DefaultButton>
       </Form>
