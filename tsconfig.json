@@ -1,5 +1,5 @@
 {
-  "include": ["remix.env.d.ts", "app/**/*.ts", "app/**/*.tsx"],
+  "include": ["remix.env.d.ts", "app/**/*.ts", "app/**/*.tsx", "worker/**.ts"],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "esModuleInterop": true,

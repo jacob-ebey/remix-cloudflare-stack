@@ -13,16 +13,21 @@ export let loader: LoaderFunction = async ({
   request,
   context: {
     sessionStorage,
-    env: { USERS },
+    env: { USER },
   },
 }) => {
   let userId = await verifyLogin(request, sessionStorage);
-  let displayName = userId
-    ? await USERS.get(`user:${userId}:displayName`)
-    : null;
+
+  let profile: any;
+  if (userId) {
+    let id = USER.idFromName(userId);
+    let obj = USER.get(id);
+    let profileResponse = await obj.fetch("/profile");
+    profile = await profileResponse.json();
+  }
 
   return json<LoaderData>({
-    displayName,
+    displayName: profile?.displayName,
   });
 };
 

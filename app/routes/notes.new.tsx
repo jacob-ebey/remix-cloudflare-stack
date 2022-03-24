@@ -27,7 +27,7 @@ interface ActionData {
 export let action: ActionFunction = async ({
   request,
   context: {
-    env: { USER },
+    env: { NOTE },
     sessionStorage,
   },
 }) => {
@@ -35,13 +35,10 @@ export let action: ActionFunction = async ({
     failure: "/login",
   });
 
-  let id = USER.idFromName(userId);
-  let obj = USER.get(id);
+  let id = NOTE.idFromName(userId);
+  let obj = NOTE.get(id);
 
-  let createNoteResponse = await obj.fetch("/notes", {
-    method: "post",
-    body: request.body,
-  });
+  let createNoteResponse = await obj.fetch("/", request.clone());
   let actionData = await createNoteResponse.json<ActionData>();
 
   if (actionData.errors) {

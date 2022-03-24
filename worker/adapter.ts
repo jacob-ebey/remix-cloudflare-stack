@@ -16,6 +16,7 @@ import {
   MethodNotAllowedError,
   NotFoundError,
 } from "@cloudflare/kv-asset-handler";
+// @ts-ignore
 import manifest from "__STATIC_CONTENT_MANIFEST";
 
 export interface GetLoadContextFunction<Env = unknown> {
@@ -153,7 +154,7 @@ export function createWorkerAssetHandler(build: ServerBuild) {
       };
       const options: Partial<KvAssetHandlerOptions> = {
         ASSET_NAMESPACE: (env as any).__STATIC_CONTENT,
-        ASSET_MANIFEST: await getAssetManifest(caches.default),
+        ASSET_MANIFEST: await getAssetManifest((caches as any).default),
       };
 
       const assetpath = build.assets.url.split("/").slice(0, -1).join("/");

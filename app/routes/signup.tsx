@@ -1,7 +1,5 @@
 import { useEffect, useRef } from "react";
 import { json, Form, Link, useActionData, redirect } from "remix";
-import { hash } from "bcryptjs";
-import { v4 as uuidv4 } from "uuid";
 
 import type { ActionFunction, LoaderFunction } from "~/context.server";
 
@@ -15,6 +13,8 @@ import {
   InputError,
   Label,
 } from "~/components/forms";
+
+import type { SignupResult } from "~/durable-objects/user.server";
 
 export let loader: LoaderFunction = async ({ request, context }) => {
   await verifyLogin(request, context.sessionStorage, {
@@ -35,71 +35,30 @@ interface ActionData {
 export let action: ActionFunction = async ({
   request,
   context: {
-    env: { USERS },
+    env: { USER },
     sessionStorage,
   },
 }) => {
-  let formData = new URLSearchParams(await request.text());
-  let email = formData.get("email");
-  let password = formData.get("password");
-  let verifyPassword = formData.get("verifyPassword");
+  let id = USER.idFromName("global");
+  let obj = USER.get(id);
+  let res = await obj.fetch("/signup", request.clone());
+
+  let response = await res.json<SignupResult>();
+
+  if ("errors" in response) {
+    return json(response);
+  }
+  let formData = await request.formData();
   let rememberMe = formData.get("rememberMe") === "on";
-
-  let actionData: ActionData = {};
-  if (!email || !email.includes("@") || email.length < 5) {
-    actionData.errors = {
-      email: "Invalid email",
-    };
-  }
-  if (!password || password.length < 8) {
-    actionData.errors = {
-      ...actionData.errors,
-      password: "Password must be at least 8 characters",
-    };
-  } else if (verifyPassword !== password) {
-    actionData.errors = {
-      ...actionData.errors,
-      verifyPassword: "Passwords do not match",
-    };
-  }
-
-  if (actionData.errors) {
-    return json(actionData);
-  }
-
-  email = email!;
-  password = password!;
-
-  let existingUserId = await USERS.get(`user:${email}:id`);
-  if (existingUserId) {
-    actionData.errors = {
-      email: "Could not signup",
-    };
-    return json(actionData);
-  }
-
-  let userId = uuidv4();
-  let hashedPassword = await hash(password, 10);
-  try {
-    await Promise.all([
-      USERS.put(`user:${email}:id`, userId),
-      USERS.put(`user:${email}:password`, hashedPassword),
-      USERS.put(`user:${userId}:displayName`, email),
-    ]);
-  } catch (err) {
-    try {
-      await Promise.all([
-        USERS.delete(`user:${email}:id`),
-        USERS.delete(`user:${email}:password`),
-      ]);
-    } finally {
-      throw err;
-    }
-  }
 
   return redirect("/", {
     headers: {
-      "Set-Cookie": await setLogin(request, sessionStorage, userId, rememberMe),
+      "Set-Cookie": await setLogin(
+        request,
+        sessionStorage,
+        response.data.id,
+        rememberMe
+      ),
     },
   });
 };

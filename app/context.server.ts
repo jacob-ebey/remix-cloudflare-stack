@@ -3,8 +3,8 @@ import type { DataFunctionArgs } from "@remix-run/server-runtime";
 
 export interface CloudflareEnvironment {
   SESSION_SECRET: string;
+  NOTE: DurableObjectNamespace;
   USER: DurableObjectNamespace;
-  USERS: KVNamespace;
 }
 
 export interface Context {

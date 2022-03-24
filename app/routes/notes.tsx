@@ -1,15 +1,11 @@
-import { json, Form, Link, useFetcher, useLoaderData } from "remix";
+import { json, Link, useFetcher, useLoaderData } from "remix";
 
 import type { ActionFunction, LoaderFunction } from "~/context.server";
 import { verifyLogin } from "~/session.server";
 
-import { DefaultButton } from "~/components/buttons";
+import type { Note } from "~/durable-objects/note.server";
 
-interface Note {
-  id: string;
-  title: string;
-  body: string;
-}
+import { DefaultButton } from "~/components/buttons";
 
 interface LoaderData {
   notes: Note[];
@@ -18,7 +14,7 @@ interface LoaderData {
 export let loader: LoaderFunction = async ({
   request,
   context: {
-    env: { USER },
+    env: { NOTE },
     sessionStorage,
   },
 }) => {
@@ -26,9 +22,9 @@ export let loader: LoaderFunction = async ({
     failure: "/login",
   });
 
-  let id = USER.idFromName(userId);
-  let obj = USER.get(id);
-  let notesResponse = await obj.fetch("/notes");
+  let id = NOTE.idFromName(userId);
+  let obj = NOTE.get(id);
+  let notesResponse = await obj.fetch("/");
   let notes = await notesResponse.json<Note[]>();
 
   return json<LoaderData>({ notes });
@@ -37,7 +33,7 @@ export let loader: LoaderFunction = async ({
 export let action: ActionFunction = async ({
   request,
   context: {
-    env: { USER },
+    env: { NOTE },
     sessionStorage,
   },
 }) => {
@@ -45,13 +41,14 @@ export let action: ActionFunction = async ({
     failure: "/login",
   });
 
+  let id = NOTE.idFromName(userId);
+  let obj = NOTE.get(id);
+
   let formData = new URLSearchParams(await request.text());
   let toDelete = formData.get("toDelete");
 
   if (toDelete) {
-    let id = USER.idFromName(userId);
-    let obj = USER.get(id);
-    await obj.fetch(`/notes/${toDelete}`, { method: "delete" });
+    await obj.fetch(`/${toDelete}`, { method: "delete" });
   }
 
   return json({});

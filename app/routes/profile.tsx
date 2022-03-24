@@ -1,14 +1,16 @@
+import { useEffect } from "react";
 import { LinksFunction, useActionData } from "remix";
-import { json, Form, useLoaderData, useLocation } from "remix";
+import { json, Form, useLoaderData } from "remix";
 import { ToastContainer, toast } from "react-toastify";
 import reactToastifyStylesUrl from "react-toastify/dist/ReactToastify.css";
 
 import { ActionFunction, LoaderFunction } from "~/context.server";
 import { verifyLogin } from "~/session.server";
 
+import type { Profile, ProfileResult } from "~/durable-objects/user.server";
+
 import { DefaultButton } from "~/components/buttons";
 import { Input, InputError, Label } from "~/components/forms";
-import { useEffect } from "react";
 
 export let links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: reactToastifyStylesUrl }];
@@ -21,7 +23,7 @@ interface LoaderData {
 export let loader: LoaderFunction = async ({
   request,
   context: {
-    env: { USERS },
+    env: { USER },
     sessionStorage,
   },
 }) => {
@@ -29,17 +31,16 @@ export let loader: LoaderFunction = async ({
     failure: "/login",
   });
 
-  let [displayName] = await Promise.all([
-    USERS.get(`user:${userId}:displayName`),
-  ]);
+  let id = USER.idFromName(userId);
+  let obj = USER.get(id);
+  let profileResponse = await obj.fetch("/profile");
+  let profile = await profileResponse.json<Profile>();
 
-  if (typeof displayName !== "string") {
-    throw new Error("Could not load displayName");
+  if (!profile) {
+    throw new Error("Could not load profile");
   }
 
-  return json<LoaderData>({
-    displayName,
-  });
+  return json<LoaderData>(profile);
 };
 
 interface ActionData {
@@ -52,7 +53,7 @@ interface ActionData {
 export let action: ActionFunction = async ({
   request,
   context: {
-    env: { USERS },
+    env: { USER },
     sessionStorage,
   },
 }) => {
@@ -60,24 +61,14 @@ export let action: ActionFunction = async ({
     failure: "/login",
   });
 
-  let formData = new URLSearchParams(await request.text());
-  let displayName = formData.get("displayName");
+  let id = USER.idFromName(userId);
+  let obj = USER.get(id);
+  let profileResponse = await obj.fetch("/profile", request.clone());
+  let responseData = await profileResponse.json<ProfileResult>();
 
-  let actionData: ActionData = {};
-
-  if (!displayName) {
-    actionData.errors = {
-      displayName: "Display name is required",
-    };
+  if ("errors" in responseData) {
+    return json(responseData, { status: 400 });
   }
-
-  if (actionData.errors) {
-    return json(actionData);
-  }
-
-  displayName = displayName!;
-
-  await Promise.all([USERS.put(`user:${userId}:displayName`, displayName)]);
 
   return json({ success: true });
 };
@@ -102,7 +93,6 @@ export default function Profile() {
           <Label>
             Display name
             <Input
-              required
               key={displayName}
               name="displayName"
               defaultValue={displayName}

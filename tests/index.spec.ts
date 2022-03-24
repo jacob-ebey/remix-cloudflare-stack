@@ -25,8 +25,8 @@ test("if the binding are set properly", async ({ mf }) => {
 
   expect(bindings).toEqual({
     SESSION_SECRET: expect.anything(),
+    NOTE: expect.anything(),
     USER: expect.anything(),
-    USERS: expect.anything(),
     __STATIC_CONTENT: expect.anything(),
     __STATIC_CONTENT_MANIFEST: expect.anything(),
   });

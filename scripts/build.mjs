@@ -1,4 +1,5 @@
 import * as esbuild from "esbuild";
+import fsp from "fs/promises";
 
 async function build() {
   // eslint-disable-next-line no-undef

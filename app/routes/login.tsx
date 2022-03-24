@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
 import { json, Form, Link, useActionData, redirect } from "remix";
-import { compare } from "bcryptjs";
 
 import type { ActionFunction, LoaderFunction } from "~/context.server";
-
 import { setLogin, verifyLogin } from "~/session.server";
+
+import { LoginResult } from "~/durable-objects/user.server";
 
 import { DefaultButton } from "~/components/buttons";
 import {
@@ -25,6 +25,7 @@ export let loader: LoaderFunction = async ({ request, context }) => {
 
 interface ActionData {
   errors?: {
+    global?: string;
     email?: string;
     password?: string;
   };
@@ -33,53 +34,30 @@ interface ActionData {
 export let action: ActionFunction = async ({
   request,
   context: {
-    env: { USERS },
+    env: { USER },
     sessionStorage,
   },
 }) => {
-  let formData = new URLSearchParams(await request.text());
-  let email = formData.get("email");
-  let password = formData.get("password");
+  let id = USER.idFromName("global");
+  let obj = USER.get(id);
+  let res = await obj.fetch("/login", request.clone());
+
+  let response = await res.json<LoginResult>();
+
+  if ("errors" in response) {
+    return json(response);
+  }
+  let formData = await request.formData();
   let rememberMe = formData.get("rememberMe") === "on";
-
-  let actionData: ActionData = {};
-  if (!email || !email.includes("@") || email.length < 5) {
-    actionData.errors = {
-      email: "Invalid email",
-    };
-  }
-  if (!password || password.length < 8) {
-    actionData.errors = {
-      ...actionData.errors,
-      password: "Password must be at least 8 characters",
-    };
-  }
-
-  if (actionData.errors) {
-    return json(actionData);
-  }
-
-  email = email!;
-  password = password!;
-
-  let [userId, storedPassword] = await Promise.all([
-    USERS.get(`user:${email}:id`),
-    USERS.get(`user:${email}:password`),
-  ]);
-  if (
-    !userId ||
-    !storedPassword ||
-    !(await compare(password, storedPassword))
-  ) {
-    actionData.errors = {
-      email: "Could not login",
-    };
-    return json(actionData);
-  }
 
   return redirect("/", {
     headers: {
-      "Set-Cookie": await setLogin(request, sessionStorage, userId, rememberMe),
+      "Set-Cookie": await setLogin(
+        request,
+        sessionStorage,
+        response.data.id,
+        rememberMe
+      ),
     },
   });
 };

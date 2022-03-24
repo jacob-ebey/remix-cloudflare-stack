@@ -4,9 +4,11 @@ import { createFetchHandler, createWorkerAssetHandler } from "./adapter";
 
 import type { CloudflareEnvironment, Context } from "../app/context.server";
 
+// @ts-ignore
 import * as build from "../build/index.js";
 
-export { UserDurableObject } from "./durable-objects/user";
+export { NoteDurableObject } from "../app/durable-objects/note.server";
+export { UserDurableObject } from "../app/durable-objects/user.server";
 
 const handleFetch = createFetchHandler<CloudflareEnvironment>({
   /**
