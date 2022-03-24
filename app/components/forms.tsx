@@ -32,3 +32,8 @@ export let Input = styledTag(
 export let InputError = styledTag("span", "mt-2 text-red-500", undefined, {
   role: "alert",
 });
+
+export let Textarea = styledTag(
+  "textarea",
+  "block border hover:border-black px-4 py-2 mt-2"
+);

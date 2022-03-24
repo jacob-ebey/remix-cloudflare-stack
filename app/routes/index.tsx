@@ -35,32 +35,38 @@ export default function Index() {
         {displayName ? `Welcome ${displayName}!` : "remix-worker-template"}
       </h1>
       <p className="py-2">
-        All-in-one remix starter template for Cloudflare Workers
+        All-in-one remix starter template for Cloudflare Workers.
       </p>
 
-      {displayName ? (
-        <>
-          <DefaultButton tag={Link} to="/profile">
-            Profile
-          </DefaultButton>
-
-          <Form className="inline-block ml-2" action="/logout" method="post">
-            <DefaultButton type="submit" data-testid="logout">
-              Logout
+      <div className="mt-4">
+        {displayName ? (
+          <>
+            <DefaultButton tag={Link} to="/notes">
+              Notes
             </DefaultButton>
-          </Form>
-        </>
-      ) : (
-        <>
-          <DefaultButton tag={Link} to="/login">
-            Login
-          </DefaultButton>
 
-          <DefaultButton className="ml-2" tag={Link} to="/signup">
-            Signup
-          </DefaultButton>
-        </>
-      )}
+            <DefaultButton tag={Link} className="ml-2" to="/profile">
+              Profile
+            </DefaultButton>
+
+            <Form className="inline-block ml-2" action="/logout" method="post">
+              <DefaultButton type="submit" data-testid="logout">
+                Logout
+              </DefaultButton>
+            </Form>
+          </>
+        ) : (
+          <>
+            <DefaultButton tag={Link} to="/login">
+              Login
+            </DefaultButton>
+
+            <DefaultButton className="ml-2" tag={Link} to="/signup">
+              Signup
+            </DefaultButton>
+          </>
+        )}
+      </div>
     </div>
   );
 }
