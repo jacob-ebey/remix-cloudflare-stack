@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
 import { json, Form, useActionData, redirect } from "remix";
-import { v4 as uuidV4 } from "uuid";
 
 import type { ActionFunction, LoaderFunction } from "~/context.server";
 
