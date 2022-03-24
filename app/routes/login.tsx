@@ -129,7 +129,9 @@ export default function Login() {
           Remember Me
         </CheckboxLabel>
 
-        <DefaultButton className="block">Login</DefaultButton>
+        <DefaultButton className="block" type="submit" data-testid="login">
+          Login
+        </DefaultButton>
       </Form>
       <p className="mt-2">
         Don't have an account?{" "}

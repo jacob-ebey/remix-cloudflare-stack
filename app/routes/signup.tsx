@@ -168,7 +168,9 @@ export default function Signup() {
           Remember Me
         </CheckboxLabel>
 
-        <DefaultButton className="block">Signup</DefaultButton>
+        <DefaultButton className="block" type="submit" data-testid="signup">
+          Signup
+        </DefaultButton>
       </Form>
       <p className="mt-2">
         Already have an account?{" "}

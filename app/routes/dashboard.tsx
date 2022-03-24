@@ -111,7 +111,9 @@ export default function Dashboard() {
               <InputError>{errors.displayName}</InputError>
             )}
           </Label>
-          <DefaultButton>Update</DefaultButton>
+          <DefaultButton type="submit" data-testid="updateProfile">
+            Update
+          </DefaultButton>
         </Form>
       </div>
       <ToastContainer />

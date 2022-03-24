@@ -1,4 +1,5 @@
-import { test as base, expect } from "@playwright/test";
+import { test as base, expect as baseExpect } from "@playwright/test";
+import type { Expect } from "@playwright/test";
 import {
   fixtures,
   TestingLibraryFixtures,
@@ -14,6 +15,8 @@ interface WorkerFixtures {
   mf: Miniflare;
   port: number;
 }
+
+let expect = baseExpect as Expect & jest.Expect;
 
 export { expect };
 
@@ -55,7 +58,9 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
       const mf = new Miniflare({
         wranglerConfigPath: true,
         buildCommand: undefined,
-        bindings: {},
+        bindings: {
+          SESSION_SECRET: "secret",
+        },
         port,
       });
 

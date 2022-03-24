@@ -45,7 +45,9 @@ export default function Index() {
           </DefaultButton>
 
           <Form className="inline-block ml-2" action="/logout" method="post">
-            <DefaultButton>Logout</DefaultButton>
+            <DefaultButton type="submit" data-testid="logout">
+              Logout
+            </DefaultButton>
           </Form>
         </>
       ) : (
