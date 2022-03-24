@@ -13,7 +13,7 @@ async function build() {
   const result = await esbuild.build({
     entryPoints: ["./worker/index.ts"],
     bundle: true,
-    minify: mode === "production",
+    minify: true,
     sourcemap: mode !== "production",
     format: "esm",
     metafile: true,

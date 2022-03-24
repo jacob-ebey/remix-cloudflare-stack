@@ -7,7 +7,13 @@ import type { ActionFunction, LoaderFunction } from "~/context.server";
 import { setLogin, verifyLogin } from "~/session.server";
 
 import { DefaultButton } from "~/components/buttons";
-import { Input, InputError, Label } from "~/components/forms";
+import {
+  Checkbox,
+  CheckboxLabel,
+  Input,
+  InputError,
+  Label,
+} from "~/components/forms";
 
 export let loader: LoaderFunction = async ({ request, context }) => {
   await verifyLogin(request, context.sessionStorage, {
@@ -34,6 +40,7 @@ export let action: ActionFunction = async ({
   let formData = new URLSearchParams(await request.text());
   let email = formData.get("email");
   let password = formData.get("password");
+  let rememberMe = formData.get("rememberMe") === "on";
 
   let actionData: ActionData = {};
   if (!email || !email.includes("@") || email.length < 5) {
@@ -72,7 +79,7 @@ export let action: ActionFunction = async ({
 
   return redirect("/", {
     headers: {
-      "Set-Cookie": await setLogin(request, sessionStorage, userId),
+      "Set-Cookie": await setLogin(request, sessionStorage, userId, rememberMe),
     },
   });
 };
@@ -105,6 +112,7 @@ export default function Login() {
           />
           {!!errors?.email && <InputError>{errors.email}</InputError>}
         </Label>
+
         <Label>
           Password
           <Input
@@ -115,6 +123,11 @@ export default function Login() {
           />
           {!!errors?.password && <InputError>{errors.password}</InputError>}
         </Label>
+
+        <CheckboxLabel>
+          <Checkbox type="checkbox" name="rememberMe" />
+          Remember Me
+        </CheckboxLabel>
 
         <DefaultButton className="block">Login</DefaultButton>
       </Form>

@@ -6,13 +6,16 @@ const USER_ID_KEY = "userId";
 export async function setLogin(
   request: Request,
   sessionStorage: SessionStorage,
-  userId: string
+  userId: string,
+  rememberMe: boolean
 ) {
   let session = await sessionStorage.getSession(request.headers.get("Cookie"));
 
   session.set(USER_ID_KEY, userId);
 
-  return sessionStorage.commitSession(session);
+  return sessionStorage.commitSession(session, {
+    maxAge: rememberMe ? 60 * 60 * 24 * 7 : undefined,
+  });
 }
 
 export async function verifyLogin(

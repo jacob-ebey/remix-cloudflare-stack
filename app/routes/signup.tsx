@@ -8,7 +8,13 @@ import type { ActionFunction, LoaderFunction } from "~/context.server";
 import { setLogin, verifyLogin } from "~/session.server";
 
 import { DefaultButton } from "~/components/buttons";
-import { Input, InputError, Label } from "~/components/forms";
+import {
+  Checkbox,
+  CheckboxLabel,
+  Input,
+  InputError,
+  Label,
+} from "~/components/forms";
 
 export let loader: LoaderFunction = async ({ request, context }) => {
   await verifyLogin(request, context.sessionStorage, {
@@ -22,6 +28,7 @@ interface ActionData {
   errors?: {
     email?: string;
     password?: string;
+    verifyPassword?: string;
   };
 }
 
@@ -35,6 +42,8 @@ export let action: ActionFunction = async ({
   let formData = new URLSearchParams(await request.text());
   let email = formData.get("email");
   let password = formData.get("password");
+  let verifyPassword = formData.get("verifyPassword");
+  let rememberMe = formData.get("rememberMe") === "on";
 
   let actionData: ActionData = {};
   if (!email || !email.includes("@") || email.length < 5) {
@@ -46,6 +55,11 @@ export let action: ActionFunction = async ({
     actionData.errors = {
       ...actionData.errors,
       password: "Password must be at least 8 characters",
+    };
+  } else if (verifyPassword !== password) {
+    actionData.errors = {
+      ...actionData.errors,
+      verifyPassword: "Passwords do not match",
     };
   }
 
@@ -85,7 +99,7 @@ export let action: ActionFunction = async ({
 
   return redirect("/", {
     headers: {
-      "Set-Cookie": await setLogin(request, sessionStorage, userId),
+      "Set-Cookie": await setLogin(request, sessionStorage, userId, rememberMe),
     },
   });
 };
@@ -94,12 +108,18 @@ export default function Signup() {
   let { errors } = useActionData<ActionData>() || {};
   let emailInputRef = useRef<HTMLInputElement>(null);
   let passwordInputRef = useRef<HTMLInputElement>(null);
+  let verifyPasswordInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (errors?.email) {
       emailInputRef.current?.focus();
+      emailInputRef.current?.select();
     } else if (errors?.password) {
       passwordInputRef.current?.focus();
+      passwordInputRef.current?.select();
+    } else if (errors?.verifyPassword) {
+      verifyPasswordInputRef.current?.focus();
+      verifyPasswordInputRef.current?.select();
     }
   }, [errors]);
 
@@ -118,16 +138,35 @@ export default function Signup() {
           />
           {!!errors?.email && <InputError>{errors.email}</InputError>}
         </Label>
+
         <Label>
           Password
           <Input
             ref={passwordInputRef}
             type="password"
             name="password"
-            autoComplete="current-password"
+            autoComplete="new-password"
           />
           {!!errors?.password && <InputError>{errors.password}</InputError>}
         </Label>
+
+        <Label>
+          Verify Password
+          <Input
+            ref={verifyPasswordInputRef}
+            type="password"
+            name="verifyPassword"
+            autoComplete="new-password"
+          />
+          {!!errors?.verifyPassword && (
+            <InputError>{errors.verifyPassword}</InputError>
+          )}
+        </Label>
+
+        <CheckboxLabel>
+          <Checkbox type="checkbox" name="rememberMe" />
+          Remember Me
+        </CheckboxLabel>
 
         <DefaultButton className="block">Signup</DefaultButton>
       </Form>

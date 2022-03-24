@@ -49,9 +49,15 @@ export default function Index() {
           </Form>
         </>
       ) : (
-        <DefaultButton tag={Link} to="/login">
-          Login
-        </DefaultButton>
+        <>
+          <DefaultButton tag={Link} to="/login">
+            Login
+          </DefaultButton>
+
+          <DefaultButton className="ml-2" tag={Link} to="/signup">
+            Signup
+          </DefaultButton>
+        </>
       )}
     </div>
   );
