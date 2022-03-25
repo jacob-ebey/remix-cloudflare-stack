@@ -54,6 +54,8 @@ let profileSchema = zfd.formData({
 export type ProfileResult = ParsedResult<typeof signupSchema, Profile>;
 
 export class UserDurableObject {
+  private profile?: Profile;
+
   constructor(
     private state: DurableObjectState,
     private env: CloudflareEnvironment
@@ -147,7 +149,10 @@ export class UserDurableObject {
     }
 
     if (url.pathname === "/profile" && method === "get") {
-      return json(await this.state.storage.get("profile"));
+      if (!this.profile) {
+        this.profile = await this.state.storage.get("profile");
+      }
+      return json(this.profile);
     }
 
     if (url.pathname === "/profile" && method === "post") {
@@ -159,10 +164,11 @@ export class UserDurableObject {
         return json(parsed, { status: 400 });
       }
 
+      this.profile = parsed.data;
       await this.state.storage.put("profile", parsed.data);
 
       return json({
-        data: parsed.data,
+        data: this.profile,
       });
     }
 

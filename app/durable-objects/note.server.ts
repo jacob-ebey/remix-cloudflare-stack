@@ -10,6 +10,7 @@ export interface Note {
   id: string;
   title: string;
   body: string;
+  createdAt: number;
 }
 
 let noteSchema = zfd.formData({
@@ -20,6 +21,8 @@ let noteSchema = zfd.formData({
 export type NoteResult = ParsedResult<typeof noteSchema, Note>;
 
 export class NoteDurableObject {
+  private notes?: Note[];
+
   constructor(
     private state: DurableObjectState,
     private env: CloudflareEnvironment
@@ -30,12 +33,17 @@ export class NoteDurableObject {
     let method = request.method.toLowerCase();
 
     if (method === "get" && url.pathname === "/") {
-      let notes = await this.state.storage.list({ reverse: true });
+      if (!this.notes) {
+        this.notes = Array.from(
+          (await this.state.storage.list<Note>({ reverse: true })).values()
+        );
+      }
 
-      return json(Array.from(notes.values()));
+      return json(this.notes.sort((a, b) => b.createdAt - a.createdAt));
     }
     if (method === "delete") {
       let id = url.pathname.slice(1);
+      this.notes = this.notes?.filter((n) => n.id !== id);
       await this.state.storage.delete(id);
       return json({});
     }
@@ -48,8 +56,10 @@ export class NoteDurableObject {
       let id = uuidV4();
       let note = {
         id,
+        createdAt: Date.now(),
         ...parsed.data,
       };
+      this.notes?.push(note);
       await this.state.storage.put(id, note);
       return json<NoteResult>({ data: note });
     }
